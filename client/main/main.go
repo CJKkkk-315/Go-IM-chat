@@ -2,15 +2,16 @@ package main
 
 import (
 	"GOchat/client/processor"
+	KgoRpc "GOchat/krpc"
 	"bufio"
 	"fmt"
-	"net"
 	"os"
 	"strconv"
 	"strings"
 )
 
 func main() {
+	rpcClient, err := KgoRpc.Dial("tcp", "127.0.0.1:8889")
 
 	for {
 		reader := bufio.NewReader(os.Stdin)
@@ -21,11 +22,15 @@ func main() {
 
 		choice, _ := reader.ReadString('\n')
 		choice = strings.TrimSpace(choice)
-		conn, err := net.Dial("tcp", "127.0.0.1:8889")
+
 		if err != nil {
 			fmt.Println(err)
 		}
-		up := processor.UserProcessor{Conn: conn}
+
+		up := processor.UserProcessor{
+			RpcClient: rpcClient,
+		}
+
 		switch choice {
 		case "1":
 			fmt.Println("您选择了登录")
@@ -42,8 +47,6 @@ func main() {
 				break
 			}
 			fmt.Println("登录成功！")
-
-
 
 			up.MainInterface()
 		case "2":
@@ -73,7 +76,3 @@ func main() {
 		}
 	}
 }
-
-
-
-

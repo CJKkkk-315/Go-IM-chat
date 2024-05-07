@@ -1,7 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f80fd602-f51e-4160-a9bd-a24c0c389085" name="Default Changelist" comment="" />
+    <list default="true" id="f80fd602-f51e-4160-a9bd-a24c0c389085" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/krpc/client.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/krpc/codec/codec.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/krpc/codec/gob.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/krpc/main/main.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/krpc/server.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/krpc/service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/main/client.exe" beforeDir="false" afterPath="$PROJECT_DIR$/client/main/client.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/main/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/client/main/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/processor/onlineProcess.go" beforeDir="false" afterPath="$PROJECT_DIR$/client/processor/onlineProcess.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/processor/userProcess.go" beforeDir="false" afterPath="$PROJECT_DIR$/client/processor/userProcess.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/main/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/main/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/processor/initProcess.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/processor/initProcess.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/processor/smsProcess.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/processor/smsProcess.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/processor/userProcess.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/processor/userProcess.go" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,10 +46,14 @@
     </option>
   </component>
   <component name="GOROOT" path="C:\Go" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="false" />
   </component>
   <component name="ProjectId" id="2d4nvmG7QmT1R398LDTdmqKfgza" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
     <property name="DefaultGoTemplateProperty" value="Go File" />
     <property name="WebServerToolWindowFactoryState" value="false" />
@@ -43,19 +63,20 @@
     <property name="go.import.settings.migrated" value="true" />
     <property name="go.sdk.automatically.set" value="true" />
     <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/client" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/krpc" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="com.goide.configuration.GoLibrariesConfigurableProvider" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="E:\GO根目录\GOchat\client" />
-      <recent name="E:\GO根目录\GOchat\server" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\GO根目录\GOchat\client\model" />
       <recent name="E:\GO根目录\GOchat\client\main" />
       <recent name="E:\GO根目录\GOchat\server\main" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\GO根目录\GOchat\krpc" />
+      <recent name="E:\GO根目录\GOchat\client" />
+      <recent name="E:\GO根目录\GOchat\server" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -70,7 +91,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Go Build.go build main.go (1)">
+  <component name="RunManager" selected="Go Build.go build GOchat/client/main">
     <configuration name="go build GOchat/client" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="GOchat" />
       <working_directory value="$PROJECT_DIR$" />
@@ -118,8 +139,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Go Build.go build GOchat/server/main" />
-        <item itemvalue="Go Build.go build main.go (1)" />
         <item itemvalue="Go Build.go build GOchat/client/main" />
+        <item itemvalue="Go Build.go build main.go (1)" />
         <item itemvalue="Go Build.go build GOchat/client" />
         <item itemvalue="Go Build.go build GOchat/server" />
       </list>
@@ -127,6 +148,19 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>

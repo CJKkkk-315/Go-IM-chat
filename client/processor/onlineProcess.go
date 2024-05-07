@@ -3,6 +3,8 @@ package processor
 import (
 	"GOchat/client/common"
 	"GOchat/client/model"
+	KgoRpc "GOchat/krpc"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -11,34 +13,38 @@ import (
 )
 
 type OnlineProcessor struct {
-	Conn net.Conn
-	User model.User
-	Flag bool
+	RpcClient *KgoRpc.Client
+	Conn      net.Conn
+	User      model.User
+	Flag      bool
 }
 
 var Op *OnlineProcessor
+
 func (op *OnlineProcessor) HeartCheck() {
 	for op.Flag {
 		time.Sleep(time.Second)
-		tf := common.Transfer{
-			Conn: op.Conn,
-			Buf:  [8092]byte{},
-		}
 
 		heartMes := common.Message{
 			Type: common.HeartCheckType,
 			Data: strconv.Itoa(op.User.UserId),
 		}
-		_ = tf.WritePkg(heartMes)
+		err := op.RpcClient.Call(context.Background(), "UserProcessor.ServerProcessHeart", &heartMes, nil)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
 	}
 
 }
 
 func Online(up *UserProcessor) {
 	Op = &OnlineProcessor{
-		Conn:   up.Conn,
-		User:   up.User,
-		Flag:   true,
+		RpcClient: up.RpcClient,
+		Conn:      up.Conn,
+		User:      up.User,
+		Flag:      true,
 	}
 
 }
@@ -53,8 +59,8 @@ func (op *OnlineProcessor) Keep() {
 			return
 		}
 		switch message.Type {
-		case common.OnlineStatusResType :
-			op.OnlineUserPrint(message)
+		case common.OnlineStatusResType:
+			//op.OnlineUserPrint(message)
 		case common.GroupMessageType:
 			op.ShowGroupMessage(message)
 
@@ -76,16 +82,16 @@ func (op *OnlineProcessor) SendGroupMessage(content string) {
 		SendUser: op.User,
 		Content:  content,
 	}
-	tf := common.Transfer{
-		Conn: op.Conn,
-		Buf:  [8092]byte{},
-	}
 	smsStr, _ := json.Marshal(sms)
 	mes := common.Message{
 		Type: common.GroupMessageType,
 		Data: string(smsStr),
 	}
-	_ = tf.WritePkg(mes)
+	err := op.RpcClient.Call(context.Background(), "SmsProcessor.GroupMessage", &mes, nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
 
 func (op *OnlineProcessor) OnlineUserPrint(message common.Message) {
@@ -94,31 +100,30 @@ func (op *OnlineProcessor) OnlineUserPrint(message common.Message) {
 
 	_ = json.Unmarshal([]byte(message.Data), &onlineStatusRes)
 	fmt.Println("当前在线列表:")
-	for _,v := range onlineStatusRes.UsersList {
+	for _, v := range onlineStatusRes.UsersList {
 		fmt.Println("用户id:", v.UserId, "用户名:", v.UserName)
 	}
 }
 
 func (op *OnlineProcessor) GetOnlineUser() {
-	tf := common.Transfer{
-		Conn: op.Conn,
+	reply := common.OnlineStatusRes{}
+	err := op.RpcClient.Call(context.Background(), "SmsProcessor.ShowOnlineList", &common.Message{}, &reply)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
-	osMes := common.Message{
-		Type: common.OnlineStatusType,
-		Data: "",
+	for _, v := range reply.UsersList {
+		fmt.Println("用户id:", v.UserId, "用户名:", v.UserName)
 	}
-	_ = tf.WritePkg(osMes)
+
 }
 
 func (op *OnlineProcessor) NoticeOnline() {
-	tf := common.Transfer{
-		Conn: op.Conn,
+	noticeMes := common.OnlineNotice{User: op.User}
+	err := op.RpcClient.Call(context.Background(), "SmsProcessor.NoticeOnline", &noticeMes, nil)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
-	noticeMes := common.OnlineNotice{User:op.User}
-	data, _ := json.Marshal(noticeMes)
-	osMes := common.Message{
-		Type: common.OnlineNoticeType,
-		Data: string(data),
-	}
-	_ = tf.WritePkg(osMes)
+
 }

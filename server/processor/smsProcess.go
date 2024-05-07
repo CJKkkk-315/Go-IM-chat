@@ -11,15 +11,11 @@ import (
 	"strconv"
 )
 
-type smsProcessor struct {
+type SmsProcessor struct {
 	Conn net.Conn
 }
 
-func (sp *smsProcessor) ShowOnlineList(message *common.Message) {
-	tf := common.Transfer{
-		Conn: sp.Conn,
-		Buf:  [8092]byte{},
-	}
+func (sp *SmsProcessor) ShowOnlineList(message *common.Message, reply *common.OnlineStatusRes) (err error) {
 	onlineKeys := make([]string, 0, len(utils.OnlineMap))
 	for k := range utils.OnlineMap {
 		onlineKeys = append(onlineKeys, strconv.Itoa(k))
@@ -28,7 +24,7 @@ func (sp *smsProcessor) ShowOnlineList(message *common.Message) {
 	userStrs, _ := utils.RB.HMGet(context.Background(), "Users", onlineKeys...).Result()
 
 	usersList := make([]model.User, 0, len(userStrs))
-	for _,v := range userStrs {
+	for _, v := range userStrs {
 		u := model.User{}
 		fmt.Println(v.(string))
 		err := json.Unmarshal([]byte(v.(string)), &u)
@@ -39,35 +35,34 @@ func (sp *smsProcessor) ShowOnlineList(message *common.Message) {
 		usersList = append(usersList, u)
 	}
 	fmt.Println(usersList)
-	onlineStatusRes := common.OnlineStatusRes{UsersList:usersList}
-	data, _ := json.Marshal(onlineStatusRes)
-	mes := common.Message{
-		Type: common.OnlineStatusResType,
-		Data: string(data),
-	}
-	_ = tf.WritePkg(mes)
+	reply.UsersList = usersList
+	return
+
 }
 
-func (sp *smsProcessor) GroupMessage(message *common.Message) {
+func (sp *SmsProcessor) GroupMessage(message *common.Message, reply *common.Message) (err error) {
 	groupMes := common.ShortMessage{}
 	_ = json.Unmarshal([]byte(message.Data), &groupMes)
 	sendId := groupMes.SendUser.UserId
-	for k,v := range utils.OnlineMap {
-		if k == sendId {continue}
+	for k, v := range utils.OnlineMap {
+		if k == sendId {
+			continue
+		}
 		tf := common.Transfer{
 			Conn: v,
 			Buf:  [8092]byte{},
 		}
 		_ = tf.WritePkg(*message)
 	}
+	return
 }
 
-func (sp *smsProcessor) NoticeOnline(message *common.Message) {
-	noticeMes := common.OnlineNotice{}
-	_ = json.Unmarshal([]byte(message.Data), &noticeMes)
+func (sp *SmsProcessor) NoticeOnline(noticeMes *common.OnlineNotice, reply *common.Message) (err error) {
 	sendUser := noticeMes.User
-	for k,v := range utils.OnlineMap {
-		if k == sendUser.UserId {continue}
+	for k, v := range utils.OnlineMap {
+		if k == sendUser.UserId {
+			continue
+		}
 		tf := common.Transfer{
 			Conn: v,
 			Buf:  [8092]byte{},
@@ -84,5 +79,5 @@ func (sp *smsProcessor) NoticeOnline(message *common.Message) {
 		}
 		_ = tf.WritePkg(mes)
 	}
-
+	return
 }

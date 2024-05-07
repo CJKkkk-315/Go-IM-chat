@@ -3,8 +3,9 @@ package processor
 import (
 	"GOchat/client/common"
 	"GOchat/client/model"
+	KgoRpc "GOchat/krpc"
 	"bufio"
-	"encoding/json"
+	"context"
 	"errors"
 	"fmt"
 	"net"
@@ -14,10 +15,10 @@ import (
 )
 
 type UserProcessor struct {
-	Conn net.Conn
-	User model.User
+	RpcClient *KgoRpc.Client
+	Conn      net.Conn
+	User      model.User
 }
-
 
 func (up *UserProcessor) Login(userId int, userPwd string) error {
 
@@ -25,24 +26,18 @@ func (up *UserProcessor) Login(userId int, userPwd string) error {
 		UserId:  userId,
 		UserPwd: userPwd,
 	}
-	loginString, _ := json.Marshal(loginMes)
-	mes := common.Message{
-		Type: common.LoginMessageType,
-		Data: string(loginString),
-	}
-	tp := common.Transfer{
-		Conn: up.Conn,
-	}
-	_ = tp.WritePkg(mes)
-	mesResString, _ := tp.ReadPkg()
 	mesRes := common.LoginResMessage{}
-	_ = json.Unmarshal([]byte(mesResString.Data), &mesRes)
+
+	err := up.RpcClient.Call(context.Background(), "UserProcessor.ServerProcessLogin", &loginMes, &mesRes)
+	if err != nil {
+		fmt.Println(err)
+	}
 	if mesRes.Code == 200 {
 		up.User = mesRes.User
 		Online(up)
-		Op.NoticeOnline()
+		//Op.NoticeOnline()
 		go Op.HeartCheck()
-		go Op.Keep()
+		//go Op.Keep()
 		return nil
 	} else {
 		return errors.New(mesRes.Error)
@@ -51,22 +46,16 @@ func (up *UserProcessor) Login(userId int, userPwd string) error {
 
 func (up *UserProcessor) Register(userId int, userPwd, userName string) error {
 	RegisterMes := common.RegisterMessage{
-		UserId:  userId,
-		UserPwd: userPwd,
+		UserId:   userId,
+		UserPwd:  userPwd,
 		UserName: userName,
 	}
-	registerString, _ := json.Marshal(RegisterMes)
-	mes := common.Message{
-		Type: common.RegisterMessageType,
-		Data: string(registerString),
-	}
-	tp := common.Transfer{
-		Conn: up.Conn,
-	}
-	_ = tp.WritePkg(mes)
-	mesResString, _ := tp.ReadPkg()
 	mesRes := common.LoginResMessage{}
-	_ = json.Unmarshal([]byte(mesResString.Data), &mesRes)
+	err := up.RpcClient.Call(context.Background(), "UserProcessor.ServerProcessRegister", &RegisterMes, &mesRes)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 	if mesRes.Code == 200 {
 		return nil
 	} else {
@@ -74,15 +63,15 @@ func (up *UserProcessor) Register(userId int, userPwd, userName string) error {
 	}
 }
 func (up *UserProcessor) LogOut() {
-	tf := common.Transfer{
-		Conn: up.Conn,
-		Buf:  [8092]byte{},
-	}
 	logOutMes := common.Message{
 		Type: common.LogOutType,
 		Data: strconv.Itoa(up.User.UserId),
 	}
-	_ = tf.WritePkg(logOutMes)
+	err := up.RpcClient.Call(context.Background(), "UserProcessor.ServerProcessLogOut", &logOutMes, nil)
+
+	if err != nil {
+		fmt.Println(err)
+	}
 	_ = up.Conn.Close()
 	Op.Flag = false
 	Op = nil
